@@ -1,16 +1,16 @@
 use std::fmt;
-use std::rc::Rc;
-use super::operations as op;
+
+use crate::stack_operation::{Stack, StackOperation};
 
 pub struct RootExpression {
     pub exprs: Vec<Expression>,
-    pub args_amount: u32,
+    pub args_count: u32,
 }
 
 impl RootExpression {
-    pub fn compute_result(&self, args: &Vec<f64>) -> Vec<f64> {
-        if args.len() as u32 != self.args_amount {
-            panic!("Expected {} amount of arguments, got: {}", self.args_amount, args.len())
+    pub fn compute_result<'a>(&self, args: &'a Vec<f64>) -> Vec<f64> {
+        if args.len() as u32 != self.args_count {
+            panic!("Expected {} amount of arguments, got: {}", self.args_count, args.len())
         }
 
         self.exprs.iter()
@@ -19,104 +19,45 @@ impl RootExpression {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Expression {
-    pub operations: Vec<Rc<dyn StackOperation>>,
+    operations: Vec<StackOperation>,
 }
 
 impl Expression {
-    fn compute_result(&self, args: &Vec<f64>) -> f64 {
-        let mut stack: Vec<f64> = vec![];
+    pub fn new(operations: Vec<StackOperation>) -> Expression {
+        Expression { operations }
+    }
+
+    pub fn compute_result<'a>(&self, args: &'a Vec<f64>) -> f64 {
+        let mut stack = Stack::new(args);
         for operation in &self.operations {
-            operation.update_stack(&mut stack, args);
+            operation.update_stack(&mut stack);
         }
 
-        match stack.get(0) {
-            None => 0f64,
-            Some(result) => result.clone(),
-        }
-    }
-}
-
-
-pub trait StackOperation: fmt::Debug {
-    // TODO: make stack a struct and put args there
-    fn update_stack(&self, stack: &mut Vec<f64>, args: &Vec<f64>);
-
-    fn is_pure_operation(&self) -> bool {
-        true
-    }
-}
-
-
-impl StackOperation for op::Constant {
-    fn update_stack(&self, stack: &mut Vec<f64>, args: &Vec<f64>) {
-        stack.push(self.value.clone() as f64);
-    }
-}
-
-impl StackOperation for op::Argument {
-    fn update_stack(&self, stack: &mut Vec<f64>, args: &Vec<f64>) {
-        let value = match args.get(self.index as usize) {
-            None => 0f64,
-            Some(value) => value.clone(),
-        };
-
-        stack.push(value);
-    }
-
-    fn is_pure_operation(&self) -> bool {
-        false
-    }
-}
-
-impl StackOperation for op::Modifier {
-    fn update_stack(&self, stack: &mut Vec<f64>, args: &Vec<f64>) {
-        if stack.len() >= 1 {
-            let arg = stack.pop().unwrap();
-            let f = self.func;
-            stack.push(f(arg));
-        }
-    }
-}
-
-impl StackOperation for op::Operator {
-    fn update_stack(&self, stack: &mut Vec<f64>, args: &Vec<f64>) {
-        if stack.len() >= 2 {
-            let arg1 = stack.pop().unwrap();
-            let arg2 = stack.pop().unwrap();
-            let f = self.func;
-            stack.push(f(arg1, arg2));
-        }
-    }
-}
-
-impl StackOperation for Expression {
-    fn update_stack(&self, stack: &mut Vec<f64>, args: &Vec<f64>) {
-        if stack.len() >= 2 {
-            let arg1 = stack.pop().unwrap();
-            let arg2 = stack.pop().unwrap();
-            let result = self.compute_result(&vec![arg1, arg2]);
-            stack.push(result);
-        }
-    }
-
-    fn is_pure_operation(&self) -> bool {
-        false
+        stack.result()
     }
 }
 
 
 #[cfg(test)]
 mod tests {
+    use std::rc::Rc;
+
+    use crate::expressions as exp;
+    use crate::primitive_operations::*;
+    use crate::primitive_operations as pr;
+    use crate::stack_operation::StackOperation::*;
+    use crate::stack_operation::StackOperationConstructor;
+
     use super::*;
-    use crate::operations::Argument;
+    use super::super::primitive_operations as op;
 
     #[test]
-    fn should_work_with_no_work() {
+    fn should_work_with_no_calculations() {
         let expr = RootExpression {
             exprs: vec![],
-            args_amount: 0,
+            args_count: 0,
         };
 
         let result = expr.compute_result(&vec![]);
@@ -128,7 +69,7 @@ mod tests {
     fn should_panic_when_got_less_arguments_than_expected() {
         let expr = RootExpression {
             exprs: vec![],
-            args_amount: 2,
+            args_count: 2,
         };
 
         expr.compute_result(&vec![0f64]);
@@ -139,39 +80,41 @@ mod tests {
         let args = vec![4_f64, 5_f64];
 
         let root_expr = {
-            let sub_expr: Rc<dyn StackOperation> = Rc::new(
-                Expression {
-                    // (b^2) - a
-                    operations: vec![Rc::new(Argument { index: 0 }),
-                                     Rc::new(Argument { index: 1 }),
-                                     Rc::new(op::MODIFIER_SQUARE),
-                                     Rc::new(op::OPERATOR_MINUS)]
-                });
+            let sub_expr: StackOperation = StackOperation::Expression(
+                Rc::new(
+                    exp::Expression {
+                        // (b^2) -a
+                        operations: vec![op::Argument { index: 0 }.stack_operation(),
+                                         op::Argument { index: 1 }.stack_operation(),
+                                         op::MODIFIER_SQUARE.stack_operation(),
+                                         op::OPERATOR_MINUS.stack_operation()]
+                    }
+                ));
 
-            let expr1 = Expression {
+            let expr1 = exp::Expression {
                 // (((5 * 5) + Q(4)) - 1) = 26
-                operations: vec![Rc::new(op::CONST_1),
-                                 Rc::new(Argument { index: 0 }),
-                                 Rc::new(op::MODIFIER_SQRT),
-                                 Rc::new(Argument { index: 1 }),
-                                 Rc::new(Argument { index: 1 }),
-                                 Rc::new(op::OPERATOR_MULTIPLY),
-                                 Rc::new(op::OPERATOR_PLUS),
-                                 Rc::new(op::OPERATOR_MINUS)]
+                operations: vec![op::CONST_1.stack_operation(),
+                                 Argument { index: 0 }.stack_operation(),
+                                 op::MODIFIER_SQRT.stack_operation(),
+                                 Argument { index: 1 }.stack_operation(),
+                                 Argument { index: 1 }.stack_operation(),
+                                 op::OPERATOR_MULTIPLY.stack_operation(),
+                                 op::OPERATOR_PLUS.stack_operation(),
+                                 op::OPERATOR_MINUS.stack_operation()]
             };
 
-            let expr2 = Expression {
+            let expr2 = exp::Expression {
                 // 100 * E(4, 5) = 2100
-                operations: vec![Rc::new(Argument { index: 1 }),
-                                 Rc::new(Argument { index: 0 }),
-                                 Rc::clone(&sub_expr),
-                                 Rc::new(op::CONST_100),
-                                 Rc::new(op::OPERATOR_MULTIPLY)]
+                operations: vec![Argument { index: 0 }.stack_operation(),
+                                 Argument { index: 1 }.stack_operation(),
+                                 sub_expr.clone(),
+                                 op::CONST_100.stack_operation(),
+                                 op::OPERATOR_MULTIPLY.stack_operation()]
             };
 
             RootExpression {
                 exprs: vec![expr1, expr2],
-                args_amount: 2,
+                args_count: 2,
             }
         };
 
