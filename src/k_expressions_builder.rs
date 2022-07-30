@@ -1,15 +1,7 @@
-use std::collections::HashMap;
-use std::hash::Hash;
-use std::rc::Rc;
 use std::sync::Arc;
-use std::option::Option;
-use std::fmt;
-use crate::operation_ids::OperationIds;
-use super::primitive_operations as ops;
-use super::operation_set::*;
-use super::expressions as exp;
-use super::k_expression::KExpression;
 
+use super::k_expression::KExpression;
+use super::operation_set::*;
 
 pub struct KExpressions {
     pub sub_expr_length: u32,

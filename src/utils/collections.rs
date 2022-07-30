@@ -6,5 +6,3 @@ macro_rules! hashmap {
          map
     }}
 }
-
-pub(crate) use hashmap;

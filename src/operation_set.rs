@@ -1,15 +1,11 @@
-use rand::Rng;
 use std::rc::Rc;
 use std::sync::Arc;
-use std::collections::HashMap;
-use rand::distributions::Exp;
-use crate::Expression;
+
 use crate::operation_ids::OperationIds;
 use crate::primitive_operations::{Argument, PrimitiveOperation};
+
+use super::expressions::Expression;
 use super::stack_operation::StackOperation;
-use super::utils::collections::hashmap;
-use super::expressions as exp;
-use super::primitive_operations as ops;
 
 #[derive(Clone)]
 pub struct PrimitiveOperationSet {
@@ -106,6 +102,7 @@ impl OperationSet {
 #[cfg(test)]
 mod tests {
     use crate::stack_operation::StackOperationConstructor;
+
     use super::*;
     use super::super::primitive_operations as op;
     use super::super::primitive_operations::PrimitiveOperation;

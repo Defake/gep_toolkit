@@ -1,5 +1,3 @@
-use std::fmt;
-
 use crate::stack_operation::{Stack, StackOperation};
 
 pub struct RootExpression {
@@ -8,7 +6,7 @@ pub struct RootExpression {
 }
 
 impl RootExpression {
-    pub fn compute_result<'a>(&self, args: &'a Vec<f64>) -> Vec<f64> {
+    pub fn compute_result(&self, args: &Vec<f64>) -> Vec<f64> {
         if args.len() as u32 != self.args_count {
             panic!("Expected {} amount of arguments, got: {}", self.args_count, args.len())
         }
@@ -29,7 +27,7 @@ impl Expression {
         Expression { operations }
     }
 
-    pub fn compute_result<'a>(&self, args: &'a Vec<f64>) -> f64 {
+    pub fn compute_result(&self, args: &Vec<f64>) -> f64 {
         let mut stack = Stack::new(args);
         for operation in &self.operations {
             operation.update_stack(&mut stack);
@@ -77,39 +75,42 @@ mod tests {
 
     #[test]
     fn expression_calculated_correctly() {
-        let args = vec![4_f64, 5_f64];
+        let x = 4_f64;
+        let y = 5_f64;
+        let args = vec![x, y];
 
         let root_expr = {
             let sub_expr: StackOperation = StackOperation::Expression(
                 Rc::new(
                     exp::Expression {
-                        // (b^2) -a
-                        operations: vec![op::Argument { index: 0 }.stack_operation(),
-                                         op::Argument { index: 1 }.stack_operation(),
-                                         op::MODIFIER_SQUARE.stack_operation(),
-                                         op::OPERATOR_MINUS.stack_operation()]
+                        // (y^2) - x = 21
+                        operations: vec![Argument { index: 1 }.stack_operation(),
+                                         MODIFIER_SQUARE.stack_operation(),
+                                         Argument { index: 0 }.stack_operation(),
+                                         OPERATOR_MINUS.stack_operation(),
+                        ]
                     }
                 ));
 
             let expr1 = exp::Expression {
-                // (((5 * 5) + Q(4)) - 1) = 26
-                operations: vec![op::CONST_1.stack_operation(),
+                // 1 - (Q(x) + (y * y)) = -26
+                operations: vec![CONST_1.stack_operation(),
                                  Argument { index: 0 }.stack_operation(),
-                                 op::MODIFIER_SQRT.stack_operation(),
+                                 MODIFIER_SQRT.stack_operation(),
                                  Argument { index: 1 }.stack_operation(),
                                  Argument { index: 1 }.stack_operation(),
-                                 op::OPERATOR_MULTIPLY.stack_operation(),
-                                 op::OPERATOR_PLUS.stack_operation(),
-                                 op::OPERATOR_MINUS.stack_operation()]
+                                 OPERATOR_MULTIPLY.stack_operation(),
+                                 OPERATOR_PLUS.stack_operation(),
+                                 OPERATOR_MINUS.stack_operation()]
             };
 
             let expr2 = exp::Expression {
-                // 100 * E(4, 5) = 2100
+                // 100 * E(x, y) = 2100
                 operations: vec![Argument { index: 0 }.stack_operation(),
                                  Argument { index: 1 }.stack_operation(),
                                  sub_expr.clone(),
-                                 op::CONST_100.stack_operation(),
-                                 op::OPERATOR_MULTIPLY.stack_operation()]
+                                 CONST_100.stack_operation(),
+                                 OPERATOR_MULTIPLY.stack_operation()]
             };
 
             RootExpression {
@@ -119,6 +120,6 @@ mod tests {
         };
 
         let result = root_expr.compute_result(&args);
-        assert_eq!(result, [26_f64, 2100_f64])
+        assert_eq!(result, [-26_f64, 2100_f64])
     }
 }

@@ -9,4 +9,4 @@ readme = "README.md"
 keywords = ["gene", "genetic", "expressions"]
 
 [dependencies]
-rand = "0.7.3"
+rand = "0.7"

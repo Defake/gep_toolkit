@@ -1,10 +1,11 @@
+use std::fmt;
 use std::ops::Range;
 use std::sync::Arc;
-use std::rc::Rc;
-use std::fmt;
-use crate::Expression;
+
+use super::expressions::Expression;
 use crate::operation_set::OperationSet;
 use crate::stack_operation::StackOperation;
+
 use super::expressions::RootExpression;
 use super::operation_set::PrimitiveOperationSet;
 

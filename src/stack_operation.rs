@@ -1,8 +1,5 @@
-use std::any::Any;
-use std::env::args;
 use std::rc::Rc;
 
-use crate::operation_set::PrimitiveOperationSet;
 use crate::primitive_operations::{Argument, Constant, Modifier, Operator, PrimitiveOperation};
 
 use super::expressions::Expression;
@@ -261,6 +258,7 @@ mod tests {
 
 
         // (x + 1)^2 - y
+        // x = 2, y = 6
         Expression::new(vec![
             Argument { index: 0 }.stack_operation(),
             op::CONST_1.stack_operation(),
