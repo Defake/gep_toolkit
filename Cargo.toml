@@ -1,7 +1,12 @@
 [package]
-name = "gep_gen"
+name = "gep_toolkit"
 version = "0.1.0"
 edition = "2021"
+description = "Gene Expressions Programming toolkit"
+repository = "https://github.com/Defake/gep_toolkit"
+license-file = "LICENSE.md"
+readme = "README.md"
+keywords = ["gene", "genetic", "expressions"]
 
 [dependencies]
 rand = "0.7.3"

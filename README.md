@@ -1,2 +1,2 @@
-# gep_gen
+# gep_toolkit
 Genetic Expression Programming generation library
