@@ -1,0 +1,9 @@
+[package]
+name = "oxigen_math_expression"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+oxigen = { version="2.1", features=["global_cache"] }
+gep_toolkit = "0.1.0"
+rand = "0.7"

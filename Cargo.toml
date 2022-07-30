@@ -7,6 +7,9 @@ repository = "https://github.com/Defake/gep_toolkit"
 license-file = "LICENSE.md"
 readme = "README.md"
 keywords = ["gene", "genetic", "expressions"]
+exclude = [
+    "examples/*",
+]
 
 [dependencies]
 rand = "0.7"
