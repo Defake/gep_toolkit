@@ -1,5 +1,5 @@
 # GEP Toolkit
-Implementation of Gene Expression Programming in Rust.
+Implementation of Gene Expression Programming in Rust. Supports SL-GEP (Self-Learning Gene Expression Programming), check out the references at the bottom of this README.
 
 ### Usage
 
@@ -10,19 +10,25 @@ Add the GEP Toolkit dependency in your Cargo.toml file:
 gep_toolkit = "0.1.0"
 ```
 
-Use `KExpression`s as your genetic population chromosomes, and use `k_expr.expression(RGEP)` to build an expression tree and compute it. 
+Use `KExpression`s as your genetic population chromosomes, and use `k_expr.expression(ExpressionTreeType::RGEP)` to build an expression tree and compute it (GEP and PGEP are not supported yet). 
 
 ```rust
+use gep_toolkit::primitive_operations::*;
+use gep_toolkit::operation_set::PrimitiveOperationSet;
+use gep_toolkit::k_expressions_builder::KExpressions;
+use gep_toolkit::k_expression::ExpressionTreeType;
+
 fn main() {
     let operations: Vec<PrimitiveOperation> = vec![
-        op::CONST_1.primitive(),
-        op::CONST_NEG_1.primitive(),
-        op::OPERATOR_PLUS.primitive(),
-        op::OPERATOR_MULTIPLY.primitive(),
-        op::OPERATOR_POW.primitive(),
+        CONST_1.primitive(),
+        CONST_NEG_1.primitive(),
+        OPERATOR_PLUS.primitive(),
+        OPERATOR_MULTIPLY.primitive(),
+        OPERATOR_POW.primitive(),
     ];
 
-    let set = PrimitiveOperationSet::new(operations, 2);
+    let args_count = 2;
+    let set = PrimitiveOperationSet::new(operations, args_count);
     let ctx = KExpressions::single_root_primitives(set, 15);
 
     let k_expr = ctx.new_k_expr();
@@ -33,13 +39,22 @@ fn main() {
 }
 ```
 
-Note that the library is intended for expression trees generation and computing them. In order to run a simulation, you need to use a separate GA library. Check out examples.
+Note that the library is intended for expression trees generation and computing them. In order to run a simulation, you will need to use a separate GA library. Check out examples.
 
 ### Examples
-
 There's an [example](https://github.com/Defake/gep_toolkit/tree/master/examples/oxigen_math_expression) of running a GEP simulation on [oxigen](https://github.com/Martin1887/oxigen).
 
-### What is supported?
-* Currently only RGEP expression parsing is implemented. GEP and PGEP are TODO
-* ADFs and SLEs are supported, but `KExpression.mutate()` doesn't support consider sub-expression positions, so you may want to implement your own mutate function.  
+### TODO
+* Saving/loading operation set and expressions
+* GEP and PGEP expressions parsing (only RGEP is supported currently)
+* Support `KExpression.mutate()` with regard to ADFs and SLEs positions. Currently you will have to implement your own mutate function
+* Support pure ADFs without arguments
+* Support restricting usage of primitive operations in main expression to support only-ADFs approach
 
+
+### References
+* [Gene Expression Programming, 2001 – Candida Ferreira](https://arxiv.org/abs/cs/0102027)
+* [Prefix Gene Expression Programming, 2005 – Xin Li, et al.](https://www.cs.uic.edu/~xli1/papers/PGEP_GECCOLateBreaking05_XLi.pdf)
+* [Automatically Defined Functions in Gene Expression Programming, 2006 - Candida Ferreira](https://www.semanticscholar.org/paper/Automatically-Defined-Functions-in-Gene-Expression-Ferreira/2f3ccc2ccc2992b07f7fe09948eabb54fbe6e61b)
+* [Robust Gene Expression Programming, 2011 – Noah Ryan, et al.](https://www.sciencedirect.com/science/article/pii/S1877050911004972)
+* [Self-Learning Gene Expression Programming, 2015 – Jinghui Zhong, at al.](https://www.researchgate.net/publication/276136922_Self-Learning_Gene_Expression_Programming)
