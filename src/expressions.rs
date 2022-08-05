@@ -8,7 +8,7 @@ pub struct RootExpression {
 impl RootExpression {
     pub fn compute_result(&self, args: &Vec<f64>) -> Vec<f64> {
         if args.len() as u32 != self.args_count {
-            panic!("Expected {} amount of arguments, got: {}", self.args_count, args.len())
+            panic!("Expected {} arguments, got: {}", self.args_count, args.len())
         }
 
         self.exprs.iter()

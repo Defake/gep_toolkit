@@ -28,7 +28,7 @@ impl OperationIds {
 
     pub fn random_ids(&self, length: u32) -> Vec<u32> {
         let mut value = vec![];
-        // self.value.push(self.genes_set.random_non_terminal(self.sub_expr_amount));
+        // self.value.push(self.genes_set.random_non_terminal(self.sub_expr_count));
         for _ in 0..length {
             value.push(self.random_id())
         }

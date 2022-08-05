@@ -14,7 +14,7 @@ pub struct PrimitiveOperationSet {
 }
 
 impl PrimitiveOperationSet {
-    pub fn new(mut operations: Vec<PrimitiveOperation>, args_amount: u32) -> PrimitiveOperationSet {
+    pub fn new(mut operations: Vec<PrimitiveOperation>, args_count: u32) -> PrimitiveOperationSet {
         for op in &operations {
             match op {
                 PrimitiveOperation::Argument(_) => {
@@ -24,13 +24,13 @@ impl PrimitiveOperationSet {
             }
         }
 
-        for arg_i in 0..args_amount {
+        for arg_i in 0..args_count {
             operations.push(PrimitiveOperation::Argument(Argument { index: arg_i }));
         }
 
         PrimitiveOperationSet {
             operations_set: operations,
-            args_count: args_amount,
+            args_count,
         }
     }
 
@@ -108,7 +108,7 @@ mod tests {
     use super::super::primitive_operations::PrimitiveOperation;
 
     #[test]
-    fn should_generate_correct_amount_of_args() {
+    fn should_generate_correct_number_of_args() {
         let ops_set = PrimitiveOperationSet::new(vec![
             PrimitiveOperation::Constant(op::CONST_1),
             PrimitiveOperation::Modifier(op::MODIFIER_SQUARE),

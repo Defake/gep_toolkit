@@ -64,6 +64,9 @@ pub const CONST_100: Constant = Constant { value: 100_f64 };
 pub const CONST_1000: Constant = Constant { value: 1000_f64 };
 pub const CONST_NEG_1: Constant = Constant { value: -1_f64 };
 
+pub const CONST_PI: Constant = Constant { value: consts::PI };
+pub const CONST_EPSILON: Constant = Constant { value: f64::EPSILON };
+
 
 pub const MODIFIER_SQUARE: Modifier = Modifier {
     func: |x| {
