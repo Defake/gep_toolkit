@@ -84,9 +84,9 @@ mod tests {
                 Rc::new(
                     exp::Expression {
                         // (y^2) - x = 21
-                        operations: vec![Argument { index: 1 }.stack_operation(),
+                        operations: vec![Argument { index: 1 }.primitive().stack_operation(),
                                          MODIFIER_SQUARE.stack_operation(),
-                                         Argument { index: 0 }.stack_operation(),
+                                         Argument { index: 0 }.primitive().stack_operation(),
                                          OPERATOR_MINUS.stack_operation(),
                         ]
                     }
@@ -95,10 +95,10 @@ mod tests {
             let expr1 = exp::Expression {
                 // 1 - (Q(x) + (y * y)) = -26
                 operations: vec![CONST_1.stack_operation(),
-                                 Argument { index: 0 }.stack_operation(),
+                                 Argument { index: 0 }.primitive().stack_operation(),
                                  MODIFIER_SQRT.stack_operation(),
-                                 Argument { index: 1 }.stack_operation(),
-                                 Argument { index: 1 }.stack_operation(),
+                                 Argument { index: 1 }.primitive().stack_operation(),
+                                 Argument { index: 1 }.primitive().stack_operation(),
                                  OPERATOR_MULTIPLY.stack_operation(),
                                  OPERATOR_PLUS.stack_operation(),
                                  OPERATOR_MINUS.stack_operation()]
@@ -106,8 +106,8 @@ mod tests {
 
             let expr2 = exp::Expression {
                 // 100 * E(x, y) = 2100
-                operations: vec![Argument { index: 0 }.stack_operation(),
-                                 Argument { index: 1 }.stack_operation(),
+                operations: vec![Argument { index: 0 }.primitive().stack_operation(),
+                                 Argument { index: 1 }.primitive().stack_operation(),
                                  sub_expr.clone(),
                                  CONST_100.stack_operation(),
                                  OPERATOR_MULTIPLY.stack_operation()]

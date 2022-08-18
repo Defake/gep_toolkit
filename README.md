@@ -1,5 +1,5 @@
 # GEP Toolkit
-Implementation of Gene Expression Programming in Rust. Supports SL-GEP (Self-Learning Gene Expression Programming), check out the references at the bottom of this README.
+Implementation of Gene Expression Programming in Rust. Supports SL-GEP (Self-Learning Gene Expression Programming), check out references at the bottom of this README.
 
 ### Usage
 

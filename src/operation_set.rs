@@ -1,5 +1,9 @@
+use std::fmt::format;
+use std::{error, io};
 use std::rc::Rc;
 use std::sync::Arc;
+
+use simple_error::SimpleError;
 
 use crate::operation_ids::OperationIds;
 use crate::primitive_operations::{Argument, PrimitiveOperation};
@@ -7,7 +11,11 @@ use crate::primitive_operations::{Argument, PrimitiveOperation};
 use super::expressions::Expression;
 use super::stack_operation::StackOperation;
 
-#[derive(Clone)]
+use super::utils::filesystem as fs;
+
+use serde::Serialize;
+
+#[derive(Clone, Serialize)]
 pub struct PrimitiveOperationSet {
     operations_set: Vec<PrimitiveOperation>,
     args_count: u32,
@@ -35,6 +43,24 @@ impl PrimitiveOperationSet {
     }
 
     pub fn args_count(&self) -> u32 { self.args_count }
+
+    pub fn validate_with_file(&self, filename: &str) -> Result<(), Box<dyn error::Error>> {
+        let ops_displays: Vec<String> = fs::deserialize_from_file(filename)?;
+        for (i, display) in ops_displays.iter().enumerate() {
+            let op_display = format!("{}", self.operations_set[i]);
+            if op_display != *display {
+                return Err(Box::new(SimpleError::new(
+                    format!("PrimitiveSet validation failed: expected primitive '{}' by index {}, but found '{}'.",
+                            display, i, op_display))));
+            }
+        }
+
+        Ok(())
+    }
+
+    pub fn serialize_to_file(&self, filename: &str) -> std::io::Result<()> {
+        fs::serialize_to_file(filename, &self)
+    }
 
     pub fn operation_ids(&self) -> OperationIds {
         OperationIds::new(self.operations_set.len() as u32)
@@ -106,13 +132,14 @@ mod tests {
     use super::*;
     use super::super::primitive_operations as op;
     use super::super::primitive_operations::PrimitiveOperation;
+    use super::super::primitive_operations::PrimitiveOperationConstructor;
 
     #[test]
     fn should_generate_correct_number_of_args() {
         let ops_set = PrimitiveOperationSet::new(vec![
-            PrimitiveOperation::Constant(op::CONST_1),
-            PrimitiveOperation::Modifier(op::MODIFIER_SQUARE),
-            PrimitiveOperation::Operator(op::OPERATOR_PLUS),
+            op::CONST_1,
+            op::MODIFIER_SQUARE,
+            op::OPERATOR_PLUS,
         ], 2);
 
         assert_eq!(ops_set.args_count(), 2);
@@ -125,9 +152,9 @@ mod tests {
     #[test]
     fn should_create_operation_ids() {
         let ops_set = PrimitiveOperationSet::new(vec![
-            PrimitiveOperation::Constant(op::CONST_1),
-            PrimitiveOperation::Modifier(op::MODIFIER_SQUARE),
-            PrimitiveOperation::Operator(op::OPERATOR_PLUS),
+            op::CONST_1,
+            op::MODIFIER_SQUARE,
+            op::OPERATOR_PLUS,
         ], 2);
 
         let ids = ops_set.operation_ids();
@@ -146,24 +173,24 @@ mod tests {
     #[test]
     fn should_return_correct_primitives_by_indexes() {
         let primitive_set = Arc::new(PrimitiveOperationSet::new(vec![
-            PrimitiveOperation::Constant(op::CONST_1),
-            PrimitiveOperation::Modifier(op::MODIFIER_SQUARE),
-            PrimitiveOperation::Operator(op::OPERATOR_PLUS),
+            op::CONST_1,
+            op::MODIFIER_SQUARE,
+            op::OPERATOR_PLUS,
         ], 2));
         let ops_set = OperationSet::from_primitive_set(&primitive_set);
 
         assert_eq!(ops_set.operation_by_id(0), op::CONST_1.stack_operation());
         assert_eq!(ops_set.operation_by_id(1), op::MODIFIER_SQUARE.stack_operation());
         assert_eq!(ops_set.operation_by_id(2), op::OPERATOR_PLUS.stack_operation());
-        assert_eq!(ops_set.operation_by_id(3), Argument { index: 0 }.stack_operation());
-        assert_eq!(ops_set.operation_by_id(4), Argument { index: 1 }.stack_operation());
+        assert_eq!(ops_set.operation_by_id(3), Argument { index: 0 }.primitive().stack_operation());
+        assert_eq!(ops_set.operation_by_id(4), Argument { index: 1 }.primitive().stack_operation());
     }
 
     #[test]
     #[should_panic]
     fn should_panic_when_operation_id_not_found() {
         let primitive_set = Arc::new(PrimitiveOperationSet::new(vec![
-            PrimitiveOperation::Constant(op::CONST_1),
+            op::CONST_1,
         ], 1));
         let ops_set = OperationSet::from_primitive_set(&primitive_set);
 
@@ -173,8 +200,8 @@ mod tests {
     #[test]
     fn should_return_correct_expressions_by_indexes() {
         let primitive_set = Arc::new(PrimitiveOperationSet::new(vec![
-            PrimitiveOperation::Constant(op::CONST_1),
-            PrimitiveOperation::Modifier(op::MODIFIER_SQUARE),
+            op::CONST_1,
+            op::MODIFIER_SQUARE,
         ], 1));
         let mut ops_set = OperationSet::from_primitive_set(&primitive_set);
 
@@ -185,8 +212,8 @@ mod tests {
         ops_set.add_sub_expr(expr1.clone());
 
         let expr2 = Expression::new(vec![
-            Argument { index: 0 }.stack_operation(),
-            Argument { index: 1 }.stack_operation(),
+            Argument { index: 0 }.primitive().stack_operation(),
+            Argument { index: 1 }.primitive().stack_operation(),
             op::OPERATOR_PLUS.stack_operation(),
         ]);
         ops_set.add_sub_expr(expr2.clone());
