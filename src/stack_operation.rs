@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::primitive_operations::{Argument, Constant, Modifier, Operator, PrimitiveOperation};
+use crate::primitive_operations::{PrimitiveOperation, Argument, Constant, Modifier, Operator};
 
 use super::expressions::Expression;
 use super::primitive_operations as op;
@@ -80,20 +80,20 @@ impl StackOperation {
 
             StackOperation::Primitive(prim_op) => {
                 match prim_op {
-                    PrimitiveOperation::Constant(cons, _) => {
-                        stack.push(cons.value);
+                    PrimitiveOperation::Constant(cons) => {
+                        stack.push(cons.value());
                     }
 
                     PrimitiveOperation::Argument(arg) => {
-                        let arg_value = stack.get_arg(arg.index as usize);
+                        let Argument::Arg(index) = arg;
+                        let arg_value = stack.get_arg(*index as usize);
                         stack.push(arg_value);
                     }
 
-                    PrimitiveOperation::Modifier(mod_f, _) => {
+                    PrimitiveOperation::Modifier(modifier) => {
                         if stack.len() >= 1 {
                             let arg = stack.pop();
-                            let f = mod_f.func;
-                            let result = f(arg);
+                            let result = modifier.compute(arg);
 
                             let result = if result.is_nan() {
                                 0.0
@@ -106,12 +106,11 @@ impl StackOperation {
                         }
                     }
 
-                    PrimitiveOperation::Operator(op_f, _) => {
+                    PrimitiveOperation::Operator(op) => {
                         if stack.len() >= 2 {
                             let arg2 = stack.pop();
                             let arg1 = stack.pop();
-                            let f = op_f.func;
-                            let result = f(arg1, arg2);
+                            let result = op.compute(arg1, arg2);
 
                             let result = if result.is_nan() {
                                 0.0
@@ -147,22 +146,40 @@ pub trait StackOperationConstructor {
     fn stack_operation(self) -> StackOperation;
 }
 
+impl StackOperationConstructor for Expression {
+    fn stack_operation(self) -> StackOperation {
+        StackOperation::Expression(Rc::new(self))
+    }
+}
 impl StackOperationConstructor for PrimitiveOperation {
     fn stack_operation(self) -> StackOperation {
         StackOperation::Primitive(self)
     }
 }
-
-impl StackOperationConstructor for Expression {
+impl StackOperationConstructor for Argument {
     fn stack_operation(self) -> StackOperation {
-        StackOperation::Expression(Rc::new(self))
+        PrimitiveOperation::Argument(self).stack_operation()
+    }
+}
+impl StackOperationConstructor for Constant {
+    fn stack_operation(self) -> StackOperation {
+        PrimitiveOperation::Constant(self).stack_operation()
+    }
+}
+impl StackOperationConstructor for Modifier {
+    fn stack_operation(self) -> StackOperation {
+        PrimitiveOperation::Modifier(self).stack_operation()
+    }
+}
+impl StackOperationConstructor for Operator {
+    fn stack_operation(self) -> StackOperation {
+        PrimitiveOperation::Operator(self).stack_operation()
     }
 }
 
 
 #[cfg(test)]
 mod tests {
-    use crate::primitive_operations::PrimitiveOperationConstructor;
     use super::*;
 
     #[test]
@@ -170,12 +187,11 @@ mod tests {
         let args = vec![];
         let mut stack = Stack::new(&args);
 
-        op::CONST_1
+        Constant::C1
             .stack_operation()
             .update_stack(&mut stack);
 
-        assert_eq!(stack.pop(), 1_f64);
-        assert_eq!(stack.result(), 0_f64);
+        assert_eq!(stack.result(), 1_f64);
     }
 
     #[test]
@@ -184,13 +200,11 @@ mod tests {
         let mut stack = Stack::new(&args);
         assert_eq!(stack.result(), 0_f64);
 
-        Argument { index: 0 }
-            .primitive()
+        Argument::Arg(0)
             .stack_operation()
             .update_stack(&mut stack);
 
-        assert_eq!(stack.pop(), 100_f64);
-        assert_eq!(stack.result(), 0_f64);
+        assert_eq!(stack.result(), 100_f64);
     }
 
     #[test]
@@ -199,8 +213,7 @@ mod tests {
         let args = vec![100_f64];
         let mut stack = Stack::new(&args);
 
-        Argument { index: 1 }
-            .primitive()
+        Argument::Arg(1)
             .stack_operation()
             .update_stack(&mut stack);
     }
@@ -209,15 +222,27 @@ mod tests {
     fn test_modifier_changes_stack() {
         let args = vec![];
         let mut stack = Stack::new(&args);
-        stack.push(2_f64);
+        stack.push(6_f64);
 
-        PrimitiveOperation::Modifier(Modifier { func: |x| x * x * 3_f64 }, "ABC")
+        PrimitiveOperation::Modifier(Modifier::Sqr)
             .stack_operation()
             .update_stack(&mut stack);
 
-        assert_eq!(stack.pop(), 12_f64);
-        assert_eq!(stack.result(), 0_f64);
+        assert_eq!(stack.result(), 36_f64);
     }
+
+    // #[test]
+    // fn test_custom_modifier_changes_stack() {
+    //     let args = vec![];
+    //     let mut stack = Stack::new(&args);
+    //     stack.push(2_f64);
+    //
+    //     PrimitiveOperation::Modifier(Modifier { func: |x| x * x * 3_f64 }, "ABC")
+    //         .stack_operation()
+    //         .update_stack(&mut stack);
+    //
+    //     assert_eq!(stack.result(), 12_f64);
+    // }
 
     #[test]
     fn test_operator_changes_stack() {
@@ -226,13 +251,28 @@ mod tests {
         stack.push(2_f64);
         stack.push(3_f64);
 
-        PrimitiveOperation::Operator(Operator { func: |x, y| (x - y) * (x + y) }, "ABC")
+        PrimitiveOperation::Operator(Operator::Multiply)
             .stack_operation()
             .update_stack(&mut stack);
 
-        assert_eq!(stack.pop(), -5_f64);
-        assert_eq!(stack.result(), 0_f64);
+        assert_eq!(stack.result(), 6_f64);
     }
+
+    // TODO:
+    // #[test]
+    // fn test_custom_operator_changes_stack() {
+    //     let args = vec![];
+    //     let mut stack = Stack::new(&args);
+    //     stack.push(2_f64);
+    //     stack.push(3_f64);
+    //
+    //     PrimitiveOperation::Operator(Operator { func: |x, y| (x - y) * (x + y) }, "ABC")
+    //         .stack_operation()
+    //         .update_stack(&mut stack);
+    //
+    //     assert_eq!(stack.pop(), -5_f64);
+    //     assert_eq!(stack.result(), 0_f64);
+    // }
 
     #[test]
     fn test_expression_changes_stack() {
@@ -245,12 +285,12 @@ mod tests {
         // (x + 1)^2 - y
         // x = 2, y = 6
         Expression::new(vec![
-            Argument { index: 0 }.primitive().stack_operation(),
-            op::CONST_1.stack_operation(),
-            op::OPERATOR_PLUS.stack_operation(),
-            op::MODIFIER_SQUARE.stack_operation(),
-            Argument { index: 1 }.primitive().stack_operation(),
-            op::OPERATOR_MINUS.stack_operation(),
+            Argument::Arg(0).stack_operation(),
+            Constant::C1.stack_operation(),
+            Operator::Plus.stack_operation(),
+            Modifier::Sqr.stack_operation(),
+            Argument::Arg(1).stack_operation(),
+            Operator::Minus.stack_operation(),
         ])
             .stack_operation()
             .update_stack(&mut stack);

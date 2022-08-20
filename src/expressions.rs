@@ -43,7 +43,7 @@ mod tests {
     use std::rc::Rc;
 
     use crate::expressions as exp;
-    use crate::primitive_operations::*;
+    use crate::primitive_operations::{Argument, Constant, Modifier, Operator, PrimitiveOperation};
     use crate::primitive_operations as pr;
     use crate::stack_operation::StackOperation::*;
     use crate::stack_operation::StackOperationConstructor;
@@ -84,33 +84,33 @@ mod tests {
                 Rc::new(
                     exp::Expression {
                         // (y^2) - x = 21
-                        operations: vec![Argument { index: 1 }.primitive().stack_operation(),
-                                         MODIFIER_SQUARE.stack_operation(),
-                                         Argument { index: 0 }.primitive().stack_operation(),
-                                         OPERATOR_MINUS.stack_operation(),
+                        operations: vec![Argument::Arg(1).stack_operation(),
+                                         Modifier::Sqr.stack_operation(),
+                                         Argument::Arg(0).stack_operation(),
+                                         Operator::Minus.stack_operation()
                         ]
                     }
                 ));
 
             let expr1 = exp::Expression {
                 // 1 - (Q(x) + (y * y)) = -26
-                operations: vec![CONST_1.stack_operation(),
-                                 Argument { index: 0 }.primitive().stack_operation(),
-                                 MODIFIER_SQRT.stack_operation(),
-                                 Argument { index: 1 }.primitive().stack_operation(),
-                                 Argument { index: 1 }.primitive().stack_operation(),
-                                 OPERATOR_MULTIPLY.stack_operation(),
-                                 OPERATOR_PLUS.stack_operation(),
-                                 OPERATOR_MINUS.stack_operation()]
+                operations: vec![Constant::C1.stack_operation(),
+                                 Argument::Arg(0).stack_operation(),
+                                 Modifier::Sqrt.stack_operation(),
+                                 Argument::Arg(1).stack_operation(),
+                                 Argument::Arg(1).stack_operation(),
+                                 Operator::Multiply.stack_operation(),
+                                 Operator::Plus.stack_operation(),
+                                 Operator::Minus.stack_operation()]
             };
 
             let expr2 = exp::Expression {
                 // 100 * E(x, y) = 2100
-                operations: vec![Argument { index: 0 }.primitive().stack_operation(),
-                                 Argument { index: 1 }.primitive().stack_operation(),
+                operations: vec![Argument::Arg(0).stack_operation(),
+                                 Argument::Arg(1).stack_operation(),
                                  sub_expr.clone(),
-                                 CONST_100.stack_operation(),
-                                 OPERATOR_MULTIPLY.stack_operation()]
+                                 Constant::C100.stack_operation(),
+                                 Operator::Multiply.stack_operation()]
             };
 
             RootExpression {

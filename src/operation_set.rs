@@ -13,9 +13,9 @@ use super::stack_operation::StackOperation;
 
 use super::utils::filesystem as fs;
 
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct PrimitiveOperationSet {
     operations_set: Vec<PrimitiveOperation>,
     args_count: u32,
@@ -33,7 +33,7 @@ impl PrimitiveOperationSet {
         }
 
         for arg_i in 0..args_count {
-            operations.push(PrimitiveOperation::Argument(Argument { index: arg_i }));
+            operations.push(PrimitiveOperation::Argument(Argument::Arg(arg_i)));
         }
 
         PrimitiveOperationSet {
@@ -44,18 +44,11 @@ impl PrimitiveOperationSet {
 
     pub fn args_count(&self) -> u32 { self.args_count }
 
-    pub fn validate_with_file(&self, filename: &str) -> Result<(), Box<dyn error::Error>> {
-        let ops_displays: Vec<String> = fs::deserialize_from_file(filename)?;
-        for (i, display) in ops_displays.iter().enumerate() {
-            let op_display = format!("{}", self.operations_set[i]);
-            if op_display != *display {
-                return Err(Box::new(SimpleError::new(
-                    format!("PrimitiveSet validation failed: expected primitive '{}' by index {}, but found '{}'.",
-                            display, i, op_display))));
-            }
-        }
+    pub fn deserialize_from_file(&self, filename: &str)
+        -> Result<PrimitiveOperationSet, Box<dyn error::Error>> {
 
-        Ok(())
+        let ops_set: PrimitiveOperationSet = fs::deserialize_from_file(filename)?;
+        Ok(ops_set)
     }
 
     pub fn serialize_to_file(&self, filename: &str) -> std::io::Result<()> {
@@ -127,34 +120,35 @@ impl OperationSet {
 
 #[cfg(test)]
 mod tests {
+    use crate::primitive_operations::{Constant, Modifier, Operator};
     use crate::stack_operation::StackOperationConstructor;
 
     use super::*;
     use super::super::primitive_operations as op;
     use super::super::primitive_operations::PrimitiveOperation;
-    use super::super::primitive_operations::PrimitiveOperationConstructor;
+    // use super::super::primitive_operations::PrimitiveOperationConstructor;
 
     #[test]
     fn should_generate_correct_number_of_args() {
         let ops_set = PrimitiveOperationSet::new(vec![
-            op::CONST_1,
-            op::MODIFIER_SQUARE,
-            op::OPERATOR_PLUS,
+            PrimitiveOperation::Constant(Constant::C1),
+            PrimitiveOperation::Modifier(Modifier::Sqr),
+            PrimitiveOperation::Operator(Operator::Plus),
         ], 2);
 
         assert_eq!(ops_set.args_count(), 2);
 
         assert_eq!(ops_set.operations_set.len(), 5);
-        assert_eq!(ops_set.operations_set[3], PrimitiveOperation::Argument(Argument { index: 0 }));
-        assert_eq!(ops_set.operations_set[4], PrimitiveOperation::Argument(Argument { index: 1 }));
+        assert_eq!(ops_set.operations_set[3], PrimitiveOperation::Argument(Argument::Arg(0)));
+        assert_eq!(ops_set.operations_set[4], PrimitiveOperation::Argument(Argument::Arg(1)));
     }
 
     #[test]
     fn should_create_operation_ids() {
         let ops_set = PrimitiveOperationSet::new(vec![
-            op::CONST_1,
-            op::MODIFIER_SQUARE,
-            op::OPERATOR_PLUS,
+            PrimitiveOperation::Constant(Constant::C1),
+            PrimitiveOperation::Modifier(Modifier::Sqr),
+            PrimitiveOperation::Operator(Operator::Plus),
         ], 2);
 
         let ids = ops_set.operation_ids();
@@ -166,31 +160,31 @@ mod tests {
     #[should_panic]
     fn should_panic_when_passed_arguments_to_constructor() {
         PrimitiveOperationSet::new(vec![
-            PrimitiveOperation::Argument(Argument { index: 0 }),
+            PrimitiveOperation::Argument(Argument::Arg(0)),
         ], 1);
     }
 
     #[test]
     fn should_return_correct_primitives_by_indexes() {
         let primitive_set = Arc::new(PrimitiveOperationSet::new(vec![
-            op::CONST_1,
-            op::MODIFIER_SQUARE,
-            op::OPERATOR_PLUS,
+            PrimitiveOperation::Constant(Constant::C1),
+            PrimitiveOperation::Modifier(Modifier::Sqr),
+            PrimitiveOperation::Operator(Operator::Plus),
         ], 2));
         let ops_set = OperationSet::from_primitive_set(&primitive_set);
 
-        assert_eq!(ops_set.operation_by_id(0), op::CONST_1.stack_operation());
-        assert_eq!(ops_set.operation_by_id(1), op::MODIFIER_SQUARE.stack_operation());
-        assert_eq!(ops_set.operation_by_id(2), op::OPERATOR_PLUS.stack_operation());
-        assert_eq!(ops_set.operation_by_id(3), Argument { index: 0 }.primitive().stack_operation());
-        assert_eq!(ops_set.operation_by_id(4), Argument { index: 1 }.primitive().stack_operation());
+        assert_eq!(ops_set.operation_by_id(0), Constant::C1.stack_operation());
+        assert_eq!(ops_set.operation_by_id(1), Modifier::Sqr.stack_operation());
+        assert_eq!(ops_set.operation_by_id(2), Operator::Plus.stack_operation());
+        assert_eq!(ops_set.operation_by_id(3), Argument::Arg(0).stack_operation());
+        assert_eq!(ops_set.operation_by_id(4), Argument::Arg(1).stack_operation());
     }
 
     #[test]
     #[should_panic]
     fn should_panic_when_operation_id_not_found() {
         let primitive_set = Arc::new(PrimitiveOperationSet::new(vec![
-            op::CONST_1,
+            PrimitiveOperation::Constant(Constant::C1),
         ], 1));
         let ops_set = OperationSet::from_primitive_set(&primitive_set);
 
@@ -200,21 +194,21 @@ mod tests {
     #[test]
     fn should_return_correct_expressions_by_indexes() {
         let primitive_set = Arc::new(PrimitiveOperationSet::new(vec![
-            op::CONST_1,
-            op::MODIFIER_SQUARE,
+            PrimitiveOperation::Constant(Constant::C1),
+            PrimitiveOperation::Modifier(Modifier::Sqr),
         ], 1));
         let mut ops_set = OperationSet::from_primitive_set(&primitive_set);
 
         let expr1 = Expression::new(vec![
-            op::CONST_100.stack_operation(),
-            op::MODIFIER_SIGMOID.stack_operation(),
+            Constant::C100.stack_operation(),
+            Modifier::Sigmoid.stack_operation(),
         ]);
         ops_set.add_sub_expr(expr1.clone());
 
         let expr2 = Expression::new(vec![
-            Argument { index: 0 }.primitive().stack_operation(),
-            Argument { index: 1 }.primitive().stack_operation(),
-            op::OPERATOR_PLUS.stack_operation(),
+            Argument::Arg(0).stack_operation(),
+            Argument::Arg(1).stack_operation(),
+            Operator::Plus.stack_operation(),
         ]);
         ops_set.add_sub_expr(expr2.clone());
 
