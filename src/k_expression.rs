@@ -27,9 +27,36 @@ pub struct KExpression {
 }
 
 impl fmt::Display for KExpression {
-    // TODO: readable representation of operations
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
-        write!(f, "{:?}", self.value)
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> fmt::Result {
+        let mut operations_set = OperationSet::from_primitive_set(&self.primitives_set);
+        let mut cursor = 0;
+
+        let mut exprs_str = vec![];
+        for _ in 0..self.subs_count {
+            let mut expr_str = vec![];
+            for _ in 0..self.sub_length {
+                let operation = operations_set.operation_by_id(self.value[cursor]);
+                expr_str.push(format!("{}", operation));
+                cursor += 1;
+            }
+            exprs_str.push(format!("EXP[{}]", expr_str.join(", ")));
+
+            // placeholder just to display an expression number
+            operations_set.add_sub_expr(Expression::new(vec![]));
+        }
+
+        let mut roots_str = vec![];
+        for i in 0..self.roots_count {
+            let mut root_str = vec![];
+            for _ in 0..self.root_length {
+                let operation = operations_set.operation_by_id(self.value[cursor]);
+                root_str.push(format!("{}", operation));
+                cursor += 1;
+            }
+            roots_str.push(format!("ROOT[{}]", root_str.join(", ")));
+        }
+
+        write!(f, "[{} - {}]", exprs_str.join(", "), roots_str.join(", "))
     }
 }
 

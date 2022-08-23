@@ -109,7 +109,7 @@ impl OperationSet {
                    index, operations_count, subs_expr_count);
         }
 
-        StackOperation::Expression(Rc::clone(&self.sub_expr_set[sub_expr_index as usize]))
+        StackOperation::Expression(Rc::clone(&self.sub_expr_set[sub_expr_index as usize]), sub_expr_index)
     }
 
     pub fn add_sub_expr(&mut self, sub_expr: Expression) {
@@ -212,8 +212,8 @@ mod tests {
         ]);
         ops_set.add_sub_expr(expr2.clone());
 
-        assert_eq!(ops_set.operation_by_id(3), expr1.stack_operation());
-        assert_eq!(ops_set.operation_by_id(4), expr2.stack_operation());
+        assert_eq!(ops_set.operation_by_id(3), StackOperation::Expression(Rc::new(expr1), 0));
+        assert_eq!(ops_set.operation_by_id(4), StackOperation::Expression(Rc::new(expr2), 1));
     }
 
     #[test]

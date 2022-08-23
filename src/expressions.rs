@@ -87,10 +87,11 @@ mod tests {
                         operations: vec![Argument::Arg(1).stack_operation(),
                                          Modifier::Sqr.stack_operation(),
                                          Argument::Arg(0).stack_operation(),
-                                         Operator::Minus.stack_operation()
+                                         Operator::Minus.stack_operation(),
                         ]
                     }
-                ));
+                ),
+                0);
 
             let expr1 = exp::Expression {
                 // 1 - (Q(x) + (y * y)) = -26

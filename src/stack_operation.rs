@@ -1,3 +1,5 @@
+use std::fmt;
+use std::fmt::Display;
 use std::rc::Rc;
 
 use crate::primitive_operations::{PrimitiveOperation, Argument, Constant, Modifier, Operator};
@@ -8,7 +10,15 @@ use super::primitive_operations as op;
 #[derive(Debug, Clone, PartialEq)]
 pub enum StackOperation {
     Primitive(op::PrimitiveOperation),
-    Expression(Rc<Expression>),
+    Expression(Rc<Expression>, usize),
+}
+impl fmt::Display for StackOperation {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> fmt::Result {
+        match self {
+            StackOperation::Primitive(pr) => write!(f, "{}", pr),
+            StackOperation::Expression(expr, index) => write!(f, "EXP[{}]", *index),
+        }
+    }
 }
 
 pub struct Stack<'a> {
@@ -61,7 +71,7 @@ impl<'a> Stack<'a> {
 impl StackOperation {
     pub fn update_stack(&self, stack: &mut Stack) {
         match self {
-            StackOperation::Expression(expression) => {
+            StackOperation::Expression(expression, _) => {
                 if stack.len() >= 2 {
                     let arg2 = stack.pop();
                     let arg1 = stack.pop();
@@ -148,7 +158,7 @@ pub trait StackOperationConstructor {
 
 impl StackOperationConstructor for Expression {
     fn stack_operation(self) -> StackOperation {
-        StackOperation::Expression(Rc::new(self))
+        StackOperation::Expression(Rc::new(self), usize::MAX)
     }
 }
 impl StackOperationConstructor for PrimitiveOperation {

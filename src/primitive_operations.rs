@@ -101,4 +101,13 @@ pub enum PrimitiveOperation {
     Operator(Operator),
 }
 
-
+impl fmt::Display for PrimitiveOperation {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            PrimitiveOperation::Constant(c) => write!(f, "{:?}", c),
+            PrimitiveOperation::Argument(a) => write!(f, "{:?}", a),
+            PrimitiveOperation::Modifier(m) => write!(f, "{:?}", m),
+            PrimitiveOperation::Operator(o) => write!(f, "{:?}", o),
+        }
+    }
+}
