@@ -110,8 +110,11 @@ impl KExpression {
     }
 
     pub fn mutate(&mut self, index: usize) {
-        // TODO: do it with regard of adfs position
-        let ids = self.primitives_set.operation_ids();
+        let mut ids = self.primitives_set.operation_ids();
+
+        let exp_included = index / self.sub_length as usize;
+        ids.add_exprs(exp_included as u32);
+
         self.value[index] = ids.random_id();
     }
 }
