@@ -21,12 +21,29 @@ use gep_toolkit::k_expr::serialize::KExpressionSer;
 
 fn main() {
     let operations: Vec<PrimitiveOperation> = vec![
-        PrimitiveOperation::Constant(Constant::C100),
-        PrimitiveOperation::Constant(Constant::C1),
         PrimitiveOperation::Constant(Constant::CNeg1),
+        PrimitiveOperation::Constant(Constant::C1),
+        PrimitiveOperation::Constant(Constant::C2),
+        PrimitiveOperation::Constant(Constant::C3),
+        PrimitiveOperation::Constant(Constant::C10),
+        PrimitiveOperation::Constant(Constant::C100),
+        PrimitiveOperation::Constant(Constant::C1000),
+        PrimitiveOperation::Modifier(Modifier::Sqr),
+        PrimitiveOperation::Modifier(Modifier::Pow3),
+        PrimitiveOperation::Modifier(Modifier::Sqrt),
+        PrimitiveOperation::Modifier(Modifier::Log2),
+        PrimitiveOperation::Modifier(Modifier::Log10),
+        PrimitiveOperation::Modifier(Modifier::Sin),
+        PrimitiveOperation::Modifier(Modifier::Cos),
+        PrimitiveOperation::Modifier(Modifier::Tanh),
+        PrimitiveOperation::Modifier(Modifier::Sigmoid),
         PrimitiveOperation::Operator(Operator::Plus),
+        PrimitiveOperation::Operator(Operator::Minus),
         PrimitiveOperation::Operator(Operator::Multiply),
+        PrimitiveOperation::Operator(Operator::Divide),
         PrimitiveOperation::Operator(Operator::Pow),
+        PrimitiveOperation::Operator(Operator::Root),
+        PrimitiveOperation::Operator(Operator::Log),
     ];
     
     let args_count = 2;
@@ -51,8 +68,8 @@ fn main() {
 Note that the library is intended for expression trees generation and computing them. In order to run a simulation, you will need to use a separate GA library. Check out examples.
 
 ### Examples
-* [Example 1](https://github.com/Defake/gep_toolkit/tree/master/examples/oxigen_math_expression) – running a GEP simulation on [oxigen](https://github.com/Martin1887/oxigen)
-* [Example 2](https://github.com/Defake/gep_toolkit/tree/master/examples/saving_loading) – save/load operation set and K-Expressions
+* [Example 1](https://github.com/Defake/gep_toolkit/tree/master/examples/oxigen_math_expression/src/main.rs) – running a GEP simulation on [oxigen](https://github.com/Martin1887/oxigen)
+* [Example 2](https://github.com/Defake/gep_toolkit/tree/master/examples/saving_loading/src/main.rs) – save/load operation set and K-Expressions
 
 ### TODO
 - [x] Saving/loading operation set and expressions
