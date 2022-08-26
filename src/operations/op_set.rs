@@ -1,10 +1,8 @@
-use std::{error, io};
-use std::fmt::format;
+use std::{error};
 use std::rc::Rc;
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
-use simple_error::SimpleError;
 
 use crate::utils::filesystem as fs;
 
@@ -42,19 +40,18 @@ impl PrimitiveOperationSet {
 
     pub fn args_count(&self) -> u32 { self.args_count }
 
-    pub fn deserialize_from_file(&self, filename: &str)
-        -> Result<PrimitiveOperationSet, Box<dyn error::Error>> {
-
-        let ops_set: PrimitiveOperationSet = fs::deserialize_from_file(filename)?;
-        Ok(ops_set)
+    pub fn operation_ids(&self) -> OperationIds {
+        OperationIds::new(self.operations_set.len() as u32)
     }
 
-    pub fn serialize_to_file(&self, filename: &str) -> std::io::Result<()> {
+    pub fn save(&self, filename: &str) -> std::io::Result<()> {
         fs::serialize_to_file(filename, &self)
     }
 
-    pub fn operation_ids(&self) -> OperationIds {
-        OperationIds::new(self.operations_set.len() as u32)
+    pub fn restore(&self, filename: &str)
+                   -> Result<PrimitiveOperationSet, Box<dyn error::Error>> {
+        let ops_set: PrimitiveOperationSet = fs::deserialize_from_file(filename)?;
+        Ok(ops_set)
     }
 }
 

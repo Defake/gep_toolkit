@@ -1,14 +1,12 @@
 use std::sync::Arc;
 
-use serde::{Deserialize, Serialize, Serializer};
-use serde::ser;
+use serde::{Deserialize, Serialize};
 
 use crate::utils::filesystem as fs;
 use crate::operations::op_set::PrimitiveOperationSet;
 
 use super::core::{KExpression, KExpressionParams};
 
-// Struct with all fields seriaizable
 #[derive(Clone, Serialize, Deserialize)]
 pub struct KExpressionSer {
     value: Vec<u32>,

@@ -18,7 +18,7 @@ pub fn serialize_to_file<T: Serialize>(filename: &str, obj: &T) -> std::io::Resu
 }
 
 pub fn deserialize_from_file<T: DeserializeOwned>(filename: &str) -> std::io::Result<T> {
-    let mut file = File::open(filename)?;
-    let mut reader = BufReader::new(file);
+    let file = File::open(filename)?;
+    let reader = BufReader::new(file);
     Ok(bincode::deserialize_from(reader).unwrap())
 }

@@ -1,7 +1,6 @@
 use std::f64::consts;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
-use std::ops::Deref;
 use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

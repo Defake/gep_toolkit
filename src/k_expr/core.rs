@@ -2,7 +2,7 @@ use std::fmt;
 use std::ops::Range;
 use std::sync::Arc;
 
-use serde::{Deserialize, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 
 use crate::operations::expressions::{Expression, RootExpression};
 use crate::operations::op_set::{OperationSet, PrimitiveOperationSet};
@@ -73,7 +73,7 @@ impl fmt::Display for KExpression {
         }
 
         let mut roots_str = vec![];
-        for i in 0..self.params.roots_count {
+        for _ in 0..self.params.roots_count {
             let mut root_str = vec![];
             for _ in 0..self.params.root_length {
                 let operation = operations_set.operation_by_id(self.value[cursor]);

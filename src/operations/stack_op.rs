@@ -1,5 +1,4 @@
 use std::fmt;
-use std::fmt::Display;
 use std::rc::Rc;
 
 use super::expressions::Expression;
@@ -14,7 +13,7 @@ impl fmt::Display for StackOperation {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> fmt::Result {
         match self {
             StackOperation::Primitive(pr) => write!(f, "{}", pr),
-            StackOperation::Expression(expr, index) => write!(f, "EXP[{}]", *index),
+            StackOperation::Expression(_expr, index) => write!(f, "EXP[{}]", *index),
         }
     }
 }

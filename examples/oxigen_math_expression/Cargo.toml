@@ -5,5 +5,5 @@ edition = "2021"
 
 [dependencies]
 oxigen = { version="2.1", features=["global_cache"] }
-gep_toolkit = "0.1.0"
+gep_toolkit = "0.2.1"
 rand = "0.7"
