@@ -2,14 +2,12 @@ use std::fmt;
 use std::fmt::Display;
 use std::rc::Rc;
 
-use crate::primitive_operations::{PrimitiveOperation, Argument, Constant, Modifier, Operator};
-
 use super::expressions::Expression;
-use super::primitive_operations as op;
+use super::primitives::{Argument, Constant, Modifier, Operator, PrimitiveOperation};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum StackOperation {
-    Primitive(op::PrimitiveOperation),
+    Primitive(PrimitiveOperation),
     Expression(Rc<Expression>, usize),
 }
 impl fmt::Display for StackOperation {

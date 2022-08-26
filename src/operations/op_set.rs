@@ -1,19 +1,17 @@
-use std::fmt::format;
 use std::{error, io};
+use std::fmt::format;
 use std::rc::Rc;
 use std::sync::Arc;
 
+use serde::{Deserialize, Serialize};
 use simple_error::SimpleError;
 
-use crate::operation_ids::OperationIds;
-use crate::primitive_operations::{Argument, PrimitiveOperation};
+use crate::utils::filesystem as fs;
 
 use super::expressions::Expression;
-use super::stack_operation::StackOperation;
-
-use super::utils::filesystem as fs;
-
-use serde::{Serialize, Deserialize};
+use super::op_ids::OperationIds;
+use super::primitives::{Argument, PrimitiveOperation};
+use super::stack_op::StackOperation;
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct PrimitiveOperationSet {
@@ -120,13 +118,11 @@ impl OperationSet {
 
 #[cfg(test)]
 mod tests {
-    use crate::primitive_operations::{Constant, Modifier, Operator};
-    use crate::stack_operation::StackOperationConstructor;
+    use crate::operations::primitives::{Constant, Modifier, Operator};
+    use crate::operations::primitives::PrimitiveOperation;
+    use crate::operations::stack_op::StackOperationConstructor;
 
     use super::*;
-    use super::super::primitive_operations as op;
-    use super::super::primitive_operations::PrimitiveOperation;
-    // use super::super::primitive_operations::PrimitiveOperationConstructor;
 
     #[test]
     fn should_generate_correct_number_of_args() {

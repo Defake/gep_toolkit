@@ -1,4 +1,4 @@
-use crate::stack_operation::{Stack, StackOperation};
+use super::stack_op::{Stack, StackOperation};
 
 pub struct RootExpression {
     pub exprs: Vec<Expression>,
@@ -42,14 +42,10 @@ impl Expression {
 mod tests {
     use std::rc::Rc;
 
-    use crate::expressions as exp;
-    use crate::primitive_operations::{Argument, Constant, Modifier, Operator, PrimitiveOperation};
-    use crate::primitive_operations as pr;
-    use crate::stack_operation::StackOperation::*;
-    use crate::stack_operation::StackOperationConstructor;
-
     use super::*;
-    use super::super::primitive_operations as op;
+    use super::super::primitives::{Argument, Constant, Modifier, Operator, PrimitiveOperation};
+    use super::super::stack_op::StackOperation;
+    use super::super::stack_op::StackOperationConstructor;
 
     #[test]
     fn should_work_with_no_calculations() {
@@ -82,7 +78,7 @@ mod tests {
         let root_expr = {
             let sub_expr: StackOperation = StackOperation::Expression(
                 Rc::new(
-                    exp::Expression {
+                    Expression {
                         // (y^2) - x = 21
                         operations: vec![Argument::Arg(1).stack_operation(),
                                          Modifier::Sqr.stack_operation(),
@@ -93,7 +89,7 @@ mod tests {
                 ),
                 0);
 
-            let expr1 = exp::Expression {
+            let expr1 = Expression {
                 // 1 - (Q(x) + (y * y)) = -26
                 operations: vec![Constant::C1.stack_operation(),
                                  Argument::Arg(0).stack_operation(),
@@ -105,7 +101,7 @@ mod tests {
                                  Operator::Minus.stack_operation()]
             };
 
-            let expr2 = exp::Expression {
+            let expr2 = Expression {
                 // 100 * E(x, y) = 2100
                 operations: vec![Argument::Arg(0).stack_operation(),
                                  Argument::Arg(1).stack_operation(),
