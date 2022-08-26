@@ -54,10 +54,13 @@ Note that the library is intended for expression trees generation and computing 
 * [Example 1](https://github.com/Defake/gep_toolkit/tree/master/examples/oxigen_math_expression) – running a GEP simulation on [oxigen](https://github.com/Martin1887/oxigen)
 * [Example 2](https://github.com/Defake/gep_toolkit/tree/master/examples/saving_loading) – save/load operation set and K-Expressions
 
-### Not implemented
-* GEP and PGEP expressions parsing (only RGEP is supported currently)
-* Support pure ADFs without arguments
-* Support restricting usage of primitive operations in main expression to support only-ADFs approach
+### TODO
+- [x] Saving/loading operation set and expressions
+- [x] Support `KExpression.mutate()` with regard to ADFs and SLEs positions
+- [ ] More concise K-Expression display format
+- [ ] GEP and PGEP expressions parsing (only RGEP is supported currently)
+- [ ] Support pure ADFs without arguments
+- [ ] Support restricting usage of primitive operations in main expression to support only-ADFs approach
 
 
 ### References
