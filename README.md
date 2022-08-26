@@ -7,29 +7,38 @@ Add the GEP Toolkit dependency in your Cargo.toml file:
 
 ```toml
 [dependencies]
-gep_toolkit = "0.1.0"
+gep_toolkit = "0.2.0"
 ```
 
 Use `KExpression`s as your genetic population chromosomes, and use `k_expr.expression(ExpressionTreeType::RGEP)` to build an expression tree and compute it (GEP and PGEP are not supported yet). 
 
 ```rust
-use gep_toolkit::primitive_operations::*;
-use gep_toolkit::operation_set::PrimitiveOperationSet;
-use gep_toolkit::k_expressions_builder::KExpressions;
-use gep_toolkit::k_expression::ExpressionTreeType;
+use gep_toolkit::operations::primitives::*;
+use gep_toolkit::operations::op_set::PrimitiveOperationSet;
+use gep_toolkit::k_expr::builder::KExpressions;
+use gep_toolkit::k_expr::core::{ExpressionTreeType, KExpressionParams};
+use gep_toolkit::k_expr::serialize::KExpressionSer;
 
 fn main() {
     let operations: Vec<PrimitiveOperation> = vec![
-        CONST_1.primitive(),
-        CONST_NEG_1.primitive(),
-        OPERATOR_PLUS.primitive(),
-        OPERATOR_MULTIPLY.primitive(),
-        OPERATOR_POW.primitive(),
+        PrimitiveOperation::Constant(Constant::C100),
+        PrimitiveOperation::Constant(Constant::C1),
+        PrimitiveOperation::Constant(Constant::CNeg1),
+        PrimitiveOperation::Operator(Operator::Plus),
+        PrimitiveOperation::Operator(Operator::Multiply),
+        PrimitiveOperation::Operator(Operator::Pow),
     ];
-
+    
     let args_count = 2;
     let set = PrimitiveOperationSet::new(operations, args_count);
-    let ctx = KExpressions::single_root_primitives(set, 15);
+    let params = KExpressionParams {
+        root_length: 5,
+        sub_length: 10,
+        subs_count: 3,
+        reuse_sub_expr: true,
+        ..KExpressionParams::default()
+    };
+    let ctx = KExpressions::new(set, params);
 
     let k_expr = ctx.new_k_expr();
     let root_expr = k_expr.expression(ExpressionTreeType::RGEP);
@@ -44,10 +53,8 @@ Note that the library is intended for expression trees generation and computing 
 ### Examples
 There's an [example](https://github.com/Defake/gep_toolkit/tree/master/examples/oxigen_math_expression) of running a GEP simulation on [oxigen](https://github.com/Martin1887/oxigen).
 
-### TODO
-* Saving/loading operation set and expressions
+### Not implemented
 * GEP and PGEP expressions parsing (only RGEP is supported currently)
-* Support `KExpression.mutate()` with regard to ADFs and SLEs positions. Currently you will have to implement your own mutate function
 * Support pure ADFs without arguments
 * Support restricting usage of primitive operations in main expression to support only-ADFs approach
 
