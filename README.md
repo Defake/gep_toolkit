@@ -51,7 +51,8 @@ fn main() {
 Note that the library is intended for expression trees generation and computing them. In order to run a simulation, you will need to use a separate GA library. Check out examples.
 
 ### Examples
-There's an [example](https://github.com/Defake/gep_toolkit/tree/master/examples/oxigen_math_expression) of running a GEP simulation on [oxigen](https://github.com/Martin1887/oxigen).
+* [Example 1](https://github.com/Defake/gep_toolkit/tree/master/examples/oxigen_math_expression) – running a GEP simulation on [oxigen](https://github.com/Martin1887/oxigen)
+* [Example 2](https://github.com/Defake/gep_toolkit/tree/master/examples/saving_loading) – save/load operation set and K-Expressions
 
 ### Not implemented
 * GEP and PGEP expressions parsing (only RGEP is supported currently)
