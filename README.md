@@ -17,7 +17,6 @@ use gep_toolkit::operations::primitives::*;
 use gep_toolkit::operations::op_set::PrimitiveOperationSet;
 use gep_toolkit::k_expr::builder::KExpressions;
 use gep_toolkit::k_expr::core::{ExpressionTreeType, KExpressionParams};
-use gep_toolkit::k_expr::serialize::KExpressionSer;
 
 fn main() {
     let operations: Vec<PrimitiveOperation> = vec![
@@ -52,6 +51,7 @@ fn main() {
         root_length: 5,
         sub_length: 10,
         subs_count: 3,
+        // If true, sub expressions can use other sub expressions 
         reuse_sub_expr: true,
         ..KExpressionParams::default()
     };
