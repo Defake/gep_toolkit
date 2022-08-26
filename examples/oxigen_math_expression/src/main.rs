@@ -3,11 +3,11 @@ use std::fmt::Display;
 use std::fs::File;
 use std::hash::{Hash, Hasher};
 
-use gep_toolkit::k_expression::*;
-use gep_toolkit::k_expressions_builder::*;
-use gep_toolkit::operation_set::*;
-use gep_toolkit::primitive_operations as op;
-use gep_toolkit::primitive_operations::{PrimitiveOperation, PrimitiveOperationConstructor};
+use gep_toolkit::k_expr::core::*;
+use gep_toolkit::k_expr::builder::*;
+use gep_toolkit::operations::op_set::*;
+use gep_toolkit::operations::primitives::*;
+use gep_toolkit::operations::primitives::{PrimitiveOperation};
 use oxigen::prelude::*;
 use rand::prelude::*;
 
@@ -96,15 +96,23 @@ impl Genotype<u32> for Chromosome {
 
 pub fn main() {
     let operations: Vec<PrimitiveOperation> = vec![
-        op::CONST_1.primitive(),
-        op::CONST_NEG_1.primitive(),
-        op::OPERATOR_PLUS.primitive(),
-        op::OPERATOR_MULTIPLY.primitive(),
-        op::OPERATOR_POW.primitive(),
+        PrimitiveOperation::Constant(Constant::C1),
+        PrimitiveOperation::Constant(Constant::C100),
+        PrimitiveOperation::Constant(Constant::CNeg1),
+        PrimitiveOperation::Operator(Operator::Plus),
+        PrimitiveOperation::Operator(Operator::Multiply),
+        PrimitiveOperation::Operator(Operator::Pow),
     ];
 
     let set = PrimitiveOperationSet::new(operations, 2);
-    let ctx = KExpressions::single_root_primitives(set, 15);
+    let params = KExpressionParams {
+        roots_count: 1,
+        root_length: 5,
+        sub_length: 10,
+        subs_count: 3,
+        reuse_sub_expr: false
+    };
+    let ctx = KExpressions::new(set, params);
 
     let population_size = 1000;
     let progress_log = File::create("progress.csv").expect("Error creating progress log file");
