@@ -4,4 +4,4 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-gep_toolkit = "0.2.1"
+gep_toolkit = "0.2.2"
