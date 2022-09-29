@@ -48,7 +48,7 @@ impl PrimitiveOperationSet {
         fs::serialize_to_file(filename, &self)
     }
 
-    pub fn restore(&self, filename: &str)
+    pub fn restore(filename: &str)
                    -> Result<PrimitiveOperationSet, Box<dyn error::Error>> {
         let ops_set: PrimitiveOperationSet = fs::deserialize_from_file(filename)?;
         Ok(ops_set)

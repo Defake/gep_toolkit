@@ -21,7 +21,7 @@ fn main() {
     op_set.save("ops.b").unwrap();
 
     // Load operation set (for example, to continue genetic simulation)
-    let op_set = op_set.restore("ops.b").unwrap();
+    let op_set = PrimitiveOperationSet::restore("ops.b").unwrap();
     println!("Restored operations set: {:?}", &op_set);
 
     let ctx = KExpressions::single_root_primitives(op_set, 10);
