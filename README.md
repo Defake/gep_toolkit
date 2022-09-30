@@ -7,7 +7,7 @@ Add the GEP Toolkit dependency in your Cargo.toml file:
 
 ```toml
 [dependencies]
-gep_toolkit = "0.2.1"
+gep_toolkit = "0.2.2"
 ```
 
 Use `KExpression`s as your genetic population chromosomes, and use `k_expr.expression(ExpressionTreeType::RGEP)` to build an expression tree and compute it (GEP and PGEP are not supported yet). 
