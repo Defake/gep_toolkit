@@ -1,4 +1,5 @@
-use std::{error};
+use std::error;
+use std::collections::HashSet;
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -22,7 +23,7 @@ impl PrimitiveOperationSet {
         for op in &operations {
             match op {
                 PrimitiveOperation::Argument(_) => {
-                    panic!("Operation {:?} can not be passed as a custom operation for Genes Set", op)
+                    panic!("Operation {:?} can not be passed as a custom operation for PrimitiveOperationSet", op)
                 }
                 _ => {}
             }
@@ -40,8 +41,13 @@ impl PrimitiveOperationSet {
 
     pub fn args_count(&self) -> u32 { self.args_count }
 
-    pub fn operation_ids(&self) -> OperationIds {
-        OperationIds::new(self.operations_set.len() as u32)
+    pub fn operation_ids(&self, args_count: Option<u32>) -> OperationIds {
+        let operations_count = match args_count {
+            None => self.operations_set.len() as u32,
+            Some(new_args_count) => self.operations_set.len() as u32 - self.args_count + new_args_count
+        };
+
+        OperationIds::new(operations_count)
     }
 
     pub fn save(&self, filename: &str) -> std::io::Result<()> {

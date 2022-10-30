@@ -10,7 +10,7 @@ impl RootExpression {
         if args.len() as u32 != self.args_count {
             panic!("Expected {} arguments, got: {}", self.args_count, args.len())
         }
-
+        // println!("Computing ROOT expression {:?} with args {:?}", self.exprs, args);
         self.exprs.iter()
             .map(|expr| expr.compute_result(&args))
             .collect()
@@ -28,6 +28,7 @@ impl Expression {
     }
 
     pub fn compute_result(&self, args: &Vec<f64>) -> f64 {
+        // println!("Computing Expression {:?} with args {:?}", self.operations, args);
         let mut stack = Stack::new(args);
         for operation in &self.operations {
             operation.update_stack(&mut stack);

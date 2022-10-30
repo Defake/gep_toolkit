@@ -23,11 +23,11 @@ impl KExpressionSer {
         }
     }
 
-    pub fn to_k_expr(self) -> KExpression {
+    pub fn to_k_expr(&self) -> KExpression {
         KExpression {
-            value: self.value,
-            params: self.params,
-            primitives_set: Arc::new(self.primitives_set)
+            value: self.value.clone(),
+            params: self.params.clone(),
+            primitives_set: Arc::new(self.primitives_set.clone())
         }
     }
 

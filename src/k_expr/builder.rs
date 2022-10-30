@@ -4,6 +4,7 @@ use crate::operations::op_set::*;
 
 use super::core::{KExpression, KExpressionParams};
 
+#[derive(Clone)]
 pub struct KExpressions {
     pub params: KExpressionParams,
     // TODO: make an option to ensure the tree is always full width
@@ -44,7 +45,9 @@ impl KExpressions {
     }
 
     pub fn new_k_expr(&self) -> KExpression {
-        let mut ids = self.operations_set.operation_ids();
+        // TODO: variable args count (?)
+        let sub_expr_args_count = Some(2);
+        let mut ids = self.operations_set.operation_ids(sub_expr_args_count);
         let mut k_expr: Vec<u32> = vec![];
 
         for _ in 0..self.params.subs_count {
@@ -56,9 +59,8 @@ impl KExpressions {
             }
         }
 
-        if !self.params.reuse_sub_expr {
-            ids.add_exprs(self.params.subs_count);
-        }
+        let mut ids = self.operations_set.operation_ids(None);
+        ids.add_exprs(self.params.subs_count);
 
         for _ in 0..self.params.roots_count {
             let root_expr_ops = ids.random_ids(self.params.root_length);

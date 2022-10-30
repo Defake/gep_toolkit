@@ -137,12 +137,14 @@ impl KExpression {
     }
 
     pub fn mutate(&mut self, index: usize) {
-        let mut ids = self.primitives_set.operation_ids();
+        let is_sub_expr = (index as u32) < (self.params.sub_length * self.params.subs_count);
+        let args_count = if is_sub_expr { Some(2) } else { None };
+        let mut ids = self.primitives_set.operation_ids(args_count);
 
         if self.params.reuse_sub_expr {
             let exp_included = index as u32 / self.params.sub_length;
             ids.add_exprs(exp_included);
-        } else if index as u32 >= self.params.sub_length * self.params.subs_count {
+        } else if !is_sub_expr {
             ids.add_exprs(self.params.subs_count);
         }
 
