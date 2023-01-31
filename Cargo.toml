@@ -1,6 +1,6 @@
 [package]
 name = "gep_toolkit"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2021"
 description = "Gene Expressions Programming toolkit"
 repository = "https://github.com/Defake/gep_toolkit"

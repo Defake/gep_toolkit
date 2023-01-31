@@ -7,7 +7,7 @@ Add the GEP Toolkit dependency in your Cargo.toml file:
 
 ```toml
 [dependencies]
-gep_toolkit = "0.2.2"
+gep_toolkit = "0.2.3"
 ```
 
 Use `KExpression`s as your genetic population chromosomes, and use `k_expr.expression(ExpressionTreeType::RGEP)` to build an expression tree and compute it (GEP and PGEP are not supported yet). 
@@ -65,7 +65,7 @@ fn main() {
 }
 ```
 
-Note that the library is intended for expression trees generation and computing them. In order to run a simulation, you will need to use a separate GA library. Check out examples.
+Note that the library is intended for expression trees generation and computing them. In order to run a simulation, you will need to use a separate GA library. Check out the examples below.
 
 ### Examples
 * [Example 1](https://github.com/Defake/gep_toolkit/tree/master/examples/oxigen_math_expression/src/main.rs) – running a GEP simulation on [oxigen](https://github.com/Martin1887/oxigen)
